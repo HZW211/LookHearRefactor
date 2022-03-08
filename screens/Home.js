@@ -23,6 +23,7 @@ const Home = ({ navigation }) => {
   const [feed, setFeed] = useState([]);
   const [temp, setTemp] = useState([]);
 
+  const [searchContent, setSearchContent] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const [videoUrl, setVideoUrl] = useState(null);
   const [sheetUrl, setSheetUrl] = useState(null);
@@ -31,6 +32,10 @@ const Home = ({ navigation }) => {
   const [thumbnailDone, setThumbnailDone] = useState(false);
   const [videoDone, setVideoDone] = useState(false);
   const [sheetDone, setSheetDone] = useState(false);
+
+  const [beforeSearch, setBeforeSearch] = useState([])
+  const [afterSearch, setAfterSearch] = useState([])
+  const [allData, setAllData] = useState([])
 
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
@@ -49,6 +54,7 @@ const Home = ({ navigation }) => {
       })
       console.log(curInfoList)
       setTemp(curInfoList)
+      setAllData(curInfoList)
     }
     fetchVideo(db)
   }, []);
@@ -126,15 +132,37 @@ const Home = ({ navigation }) => {
     //window.location.reload();
   }
 
+  const pressToSearch = () => {
+    if (searchContent == '') {
+      setTemp(allData)
+    } else {
+      var searchRes = []
+      for (let i = 0; i < allData.length; i++) {
+        if (allData[i].partName.toLowerCase().includes(searchContent.toLocaleLowerCase())) {
+          searchRes.push(allData[i])
+        }
+      }
+      // console.log(searchRes)
+      setTemp(searchRes)
+      console.log(temp)
+    }
+  }
+
   return (
     <View style={styles.mainView}>
       {/* // FIXME: piece name hard code */}
       <Text style={styles.header}>zirlerMotet</Text>
+
+      <View style={{flexDirection: 'row', width: '90%', marginBottom: 25, marginLeft: 50}}>
       <TextInput
         style={styles.textInput}
         placeholder={"Search your part"}
+        onChangeText={text => setSearchContent(text)}
         // value={searchPart}
       />
+      <TouchableOpacity style={styles.searchButton} title="search" onPress={pressToSearch}>search</TouchableOpacity>
+      </View>
+
       <View style={styles.partsContent}>
         {temp.length < 1 ? (
           <ActivityIndicator size={"large"} color={"black"} />
@@ -191,7 +219,7 @@ const Home = ({ navigation }) => {
           <TextInput style={{borderWidth: 1.0}} placeholder='Name it' onChangeText={text => setNewName(text)}></TextInput>
         </View>
         <View style={{flexDirection: 'row'}}>
-          <View style={styles.upload1, {minWidth: 150, marginRight: 10}}>
+          <View style={styles.upload1}>
             {(thumbnailUrl != null && videoUrl != null && sheetUrl != null && newName != '') ? 
               <Button color='green' title='create new set' onPress={createNew}/> 
             : null}
@@ -280,6 +308,19 @@ const styles = StyleSheet.create({
   upload1: {
     flexDirection: 'column',
     marginBottom: 10,
+    minWidth: 150, 
+    marginRight: 10
+  },
+  searchButton: {
+    marginLeft: 10, 
+    marginTop: 5, 
+    color: 'black', 
+    borderWidth: 3, 
+    height: '50%', 
+    width: 85, 
+    overflow: 'hidden', 
+    borderRadius: 10, 
+    textAlign: 'center',
   }
 });
 
