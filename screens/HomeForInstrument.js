@@ -39,7 +39,7 @@ const Home = ({ navigation }) => {
 
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
-  // Update has already linked to database, dummy data has already been stored in firebase, and the function works properly 
+  // Update has already linked to database, dummy data has already been stored in firebase, and the function works properly
   useEffect(() => {
     // TODO: make sure that all properties in fetched data can work fine with all the frontend tags
     const db = firebase.firestore()
@@ -220,13 +220,13 @@ const Home = ({ navigation }) => {
         </View>
         <View style={{flexDirection: 'row'}}>
           <View style={styles.upload1}>
-            {(thumbnailUrl != null && videoUrl != null && sheetUrl != null && newName != '') ? 
-              <Button color='green' title='create new set' onPress={createNew}/> 
+            {(thumbnailUrl != null && videoUrl != null && sheetUrl != null && newName != '') ?
+              <Button color='green' title='create new set' onPress={createNew}/>
             : null}
           </View>
           <View style={{marginTop: 4}}>
-            {(thumbnailUrl != null && videoUrl != null && sheetUrl != null && newName != '') ? 
-              <Text style={{fontSize: 17}}>Please refresh this page after clicking this</Text> 
+            {(thumbnailUrl != null && videoUrl != null && sheetUrl != null && newName != '') ?
+              <Text style={{fontSize: 17}}>Please refresh this page after clicking this</Text>
             : null}
           </View>
         </View>
@@ -302,24 +302,24 @@ const styles = StyleSheet.create({
     height: 80,
   },
   upload: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     marginBottom: 15
   },
   upload1: {
     flexDirection: 'column',
     marginBottom: 10,
-    minWidth: 150, 
+    minWidth: 150,
     marginRight: 10
   },
   searchButton: {
-    marginLeft: 10, 
-    marginTop: 5, 
-    color: 'black', 
-    borderWidth: 3, 
-    height: '50%', 
-    width: 85, 
-    overflow: 'hidden', 
-    borderRadius: 10, 
+    marginLeft: 10,
+    marginTop: 5,
+    color: 'black',
+    borderWidth: 3,
+    height: '50%',
+    width: 85,
+    overflow: 'hidden',
+    borderRadius: 10,
     textAlign: 'center',
   }
 });

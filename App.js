@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import SignIn from "./screens/SignIn";
 import SignUp from "./screens/SignUp";
-import Home from "./screens/Home";
+import Home from "./screens/HomeForInstrument";
+import HomeNew from "./screens/HomeforPiece";
 import Settings from "./screens/Settings";
 import Player from "./screens/Player";
 import { firebase } from "./Firebase/firebase";
@@ -22,12 +23,12 @@ export default function App() {
       <HomeStack.Navigator>
         <HomeStack.Screen
           name="HomeScreen"
-          component={Home}
+          component={HomeNew}
           options={{ headerShown: false }}
         />
         <HomeStack.Screen
-          name="Player"
-          component={Player}
+          name="HomeForInstrument"
+          component={Home}
           options={{ headerShown: false }}
         />
       </HomeStack.Navigator>
