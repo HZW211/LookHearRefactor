@@ -18,10 +18,11 @@ import storage from '@react-native-firebase/storage';
 import 'firebase/storage';
 import { doc, setDoc } from "firebase/firestore";
 
-const Home = ({ navigation }) => {
+const Home = ({ navigation, route }) => {
   const [searchPart, setSearchPart] = useState("");
   const [feed, setFeed] = useState([]);
   const [temp, setTemp] = useState([]);
+  // const [pieceName, setPieceName] = route.params
 
   const [searchContent, setSearchContent] = useState('');
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -44,15 +45,30 @@ const Home = ({ navigation }) => {
     // TODO: make sure that all properties in fetched data can work fine with all the frontend tags
     const db = firebase.firestore()
     var curInfoList = []
+    // async function fetchVideo(db) {
+    //   await db.collection('videos1').get().then((snapshot) => {
+    //     snapshot.docs.forEach(doc => {
+    //       //need to retrieve every property of each doc, and make them as a whole object, so that we can make a list of object and set it as feed
+          
+    //       const curInfo = doc.data()
+    //       curInfoList.push(curInfo)
+    //     })
+    //   })
+    //   console.log(curInfoList)
+    //   console.log(route.params.pieceName)
+    //   setTemp(curInfoList)
+    //   setAllData(curInfoList)
+    // }
     async function fetchVideo(db) {
-      await db.collection('videos').get().then((snapshot) => {
-        snapshot.docs.forEach(doc => {
-          //need to retrieve every property of each doc, and make them as a whole object, so that we can make a list of object and set it as feed
-          const curInfo = doc.data()
-          curInfoList.push(curInfo)
-        })
-      })
+      await db.collection('videos1').doc(route.params.pieceName)
+              .collection(route.params.pieceName).get().then((snapshot) => {
+                snapshot.docs.forEach(doc => {
+                  const curInfo = doc.data()
+                  curInfoList.push(curInfo)
+                })
+              })
       console.log(curInfoList)
+      console.log(route.params.pieceName)
       setTemp(curInfoList)
       setAllData(curInfoList)
     }
@@ -74,7 +90,7 @@ const Home = ({ navigation }) => {
     console.log("selectThumbnailImage")
     const file = e.target.files[0]
     var storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(file.name)
+    const fileRef = storageRef.child(route.params.pieceName.concat(file.name))
     await fileRef.put(file)
     const ThumbnailUrl = await fileRef.getDownloadURL()
     setThumbnailUrl(ThumbnailUrl)
@@ -86,7 +102,7 @@ const Home = ({ navigation }) => {
     console.log("selectVideo")
     const file = e.target.files[0]
     var storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(file.name)
+    const fileRef = storageRef.child(route.params.pieceName.concat(file.name))
     await fileRef.put(file)
     const VideoUrl = await fileRef.getDownloadURL()
     setVideoUrl(VideoUrl)
@@ -98,7 +114,7 @@ const Home = ({ navigation }) => {
     console.log("selectSheetImage")
     const file = e.target.files[0]
     var storageRef = firebase.storage().ref();
-    const fileRef = storageRef.child(file.name)
+    const fileRef = storageRef.child(route.params.pieceName.concat(file.name))
     await fileRef.put(file)
     const SheetUrl = await fileRef.getDownloadURL()
     setSheetUrl(SheetUrl)
@@ -115,7 +131,8 @@ const Home = ({ navigation }) => {
     //   url: videoUrl,
     // })
     console.log("ready to create")
-    db.collection("videos").doc(newName).set({
+    const newNameInStorage = newName.concat(route.params.pieceName)
+    db.collection("videos1").doc(route.params.pieceName).collection(route.params.pieceName).doc(newNameInStorage).set({
       partId: id,
       partName: newName,
       partThumbnail: thumbnailUrl,
@@ -151,7 +168,7 @@ const Home = ({ navigation }) => {
   return (
     <View style={styles.mainView}>
       {/* // FIXME: piece name hard code */}
-      <Text style={styles.header}>zirlerMotet</Text>
+      <Text style={styles.header}>{route.params.pieceName}</Text>
 
       <View style={{flexDirection: 'row', width: '90%', marginBottom: 25, marginLeft: 50}}>
       <TextInput

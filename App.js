@@ -31,6 +31,11 @@ export default function App() {
           component={Home}
           options={{ headerShown: false }}
         />
+        <HomeStack.Screen
+          name="Player"
+          component={Player}
+          options={{ headerShown: false }}
+        />
       </HomeStack.Navigator>
     );
   };

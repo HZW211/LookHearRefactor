@@ -38,6 +38,7 @@ const Home = ({ navigation }) => {
   const [allData, setAllData] = useState([])
 
   const [placeholderList,setPlaceholderList] = useState(["zirlerMotet","OrtoMotet","OtherMotet"])
+  const [pieceNames, setpieceNames] = useState([])
 
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
@@ -47,16 +48,18 @@ const Home = ({ navigation }) => {
     const db = firebase.firestore()
     var curInfoList = []
     async function fetchVideo(db) {
-      await db.collection('videos').get().then((snapshot) => {
+      await db.collection('videos1').get().then((snapshot) => {
         snapshot.docs.forEach(doc => {
           //need to retrieve every property of each doc, and make them as a whole object, so that we can make a list of object and set it as feed
-          const curInfo = doc.data()
-          curInfoList.push(curInfo)
+          // const curInfo = doc.data()
+          // curInfoList.push(doc.data())
+          pieceNames.push(doc.id)
         })
       })
-      console.log(curInfoList)
+      console.log(pieceNames)
       setTemp(curInfoList)
-      setAllData(curInfoList)
+      // setAllData(curInfoList)
+      console.log("complete")
     }
     fetchVideo(db)
   }, []);
@@ -134,21 +137,21 @@ const Home = ({ navigation }) => {
     //window.location.reload();
   }
 
-  const pressToSearch = () => {
-    if (searchContent == '') {
-      setTemp(allData)
-    } else {
-      var searchRes = []
-      for (let i = 0; i < allData.length; i++) {
-        if (allData[i].partName.toLowerCase().includes(searchContent.toLocaleLowerCase())) {
-          searchRes.push(allData[i])
-        }
-      }
-      // console.log(searchRes)
-      setTemp(searchRes)
-      console.log(temp)
-    }
-  }
+  // const pressToSearch = () => {
+  //   if (searchContent == '') {
+  //     setTemp(allData)
+  //   } else {
+  //     var searchRes = []
+  //     for (let i = 0; i < allData.length; i++) {
+  //       if (allData[i].partName.toLowerCase().includes(searchContent.toLocaleLowerCase())) {
+  //         searchRes.push(allData[i])
+  //       }
+  //     }
+  //     // console.log(searchRes)
+  //     setTemp(searchRes)
+  //     console.log(temp)
+  //   }
+  // }
 
   return (
     <View style={styles.mainView}>
@@ -162,19 +165,19 @@ const Home = ({ navigation }) => {
         onChangeText={text => setSearchContent(text)}
         // value={searchPart}
       />
-        <TouchableOpacity style={styles.searchButton} title="search" onPress={pressToSearch}>search</TouchableOpacity>
+        {/* <TouchableOpacity style={styles.searchButton} title="search" onPress={pressToSearch}>search</TouchableOpacity> */}
       </View>
 
       <View style={styles.partsContent}>
-        {temp.length < 1 ? (
+        {pieceNames.length < 1 ? (
           <ActivityIndicator size={"large"} color={"black"} />
         ) : (
           <FlatList
             //data={feed}
-            data = {placeholderList}
-            keyExtractor={(item, index) => {
-              return item.toString();
-            }}
+            data = {pieceNames}
+            // keyExtractor={(item, index) => {
+            //   return item.toString();
+            // }}
             renderItem={({ item, index }) => (
               <View style={styles.partConent}>
                 <View style={styles.partNameOuter}>
@@ -182,7 +185,7 @@ const Home = ({ navigation }) => {
                     <TouchableOpacity
                       style={styles.thumbnailButton}
                       onPress={() =>
-                        navigation.navigate("HomeForInstrument", { data: item })
+                        navigation.navigate("HomeForInstrument", { pieceName: item })
                       }
                     >
                       <Image
