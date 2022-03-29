@@ -9,6 +9,7 @@ import {
   TextInput,
   Image,
   Button,
+  ScrollView,
 } from "react-native";
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import { firebase } from "../Firebase/firebase";
@@ -39,6 +40,7 @@ const Home = ({ navigation }) => {
 
   const [placeholderList,setPlaceholderList] = useState(["zirlerMotet","OrtoMotet","OtherMotet"])
   const [pieceNames, setpieceNames] = useState([])
+  const [newPieceName, setNewPieceName] = useState([])
 
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
@@ -137,6 +139,29 @@ const Home = ({ navigation }) => {
     //window.location.reload();
   }
 
+  const deletePiece = (pieceName) => {
+    const db = firebase.firestore()
+    db.collection("videos1").doc(pieceName).delete().then(() => {
+      console.log("Document successfully deleted!");
+      window.location.reload(false);
+    }).catch((error) => {
+      console.error("Error removing document: ", error);
+    });
+  }
+
+  const createNewPiece = () => {
+    const db = firebase.firestore()
+    db.collection("videos1").doc(newPieceName).set({
+      name: "field is uesless here",
+    })
+    .then(() => {
+      console.log("Document successfully written!");
+      window.location.reload(false);
+    })
+    .catch((error) => {
+      console.error("Error writing document: ", error);
+    });
+  }
   // const pressToSearch = () => {
   //   if (searchContent == '') {
   //     setTemp(allData)
@@ -196,6 +221,10 @@ const Home = ({ navigation }) => {
                     </TouchableOpacity>
                     <Text style={styles.partName}>{item}</Text>
                   </View>
+                  <View style={{height: '50%', marginTop: 30}}>
+                    <TouchableOpacity style={styles.button} onPress={() => deletePiece(item)}><Text>delete this piece: {item}(DONT click it now!)</Text></TouchableOpacity>
+                  </View>
+                  
                   <Icon style={styles.optionsIcon} name="options-vertical" />
                 </View>
               </View>
@@ -203,6 +232,18 @@ const Home = ({ navigation }) => {
           />
         )}
       </View>
+
+      <View>
+        <TextInput style={styles.createButton} onChangeText={setNewPieceName} placeholder="Name the new piece"></TextInput>
+        <View style={{marginTop: 2}}>
+            {(newPieceName != '') ?
+              <Button title="create a new piece" onPress={createNewPiece}></Button>
+            : null}
+          </View>
+        
+      </View>
+
+      
     </View>
   );
 };
@@ -214,6 +255,7 @@ const styles = StyleSheet.create({
     height: "100%",
     alignItems: "center",
     backgroundColor: "#e8e8db",
+    overflow: "auto"
   },
   header: {
     fontSize: 30,
@@ -235,6 +277,7 @@ const styles = StyleSheet.create({
   },
   partsContent: {
     width: "100%",
+    marginBottom: 20
   },
   partConent: {
     width: "100%",
@@ -283,17 +326,20 @@ const styles = StyleSheet.create({
     minWidth: 150,
     marginRight: 10
   },
-  searchButton: {
-    marginLeft: 10,
+  createButton: {
+    marginBottom: 5,
     marginTop: 5,
     color: 'black',
     borderWidth: 3,
-    height: '50%',
-    width: 85,
     overflow: 'hidden',
     borderRadius: 10,
     textAlign: 'center',
-  }
+  },
+  button: {
+    alignItems: "center",
+    backgroundColor: "#DDDDDD",
+    padding: 10
+  },
 });
 
 export default Home;

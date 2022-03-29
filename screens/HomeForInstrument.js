@@ -140,6 +140,7 @@ const Home = ({ navigation, route }) => {
       url: videoUrl,
     }).then(() => {
       console.log("a new doc has been created!")
+      window.location.reload(false);
     })
     .catch((error) => {
       console.log("Error writing new doc: ", error);
