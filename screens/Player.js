@@ -19,6 +19,7 @@ import {
   Alert,
   FlatList,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Video, AVPlaybackStatus } from "expo-av";
 import { firebase } from "../Firebase/firebase";
@@ -45,7 +46,7 @@ const Player = ({ navigation, route }) => {
   });
 
   // const { screenWidth, screenHeight } = Dimensions.get("screen");
-
+  const [temp, setTemp] = useState([]);
   const [partData, setPartData] = useState(route.params.data);
   const [pieceName, setPieceName] = useState(route.params.pieceName);
   const [nameList, setNameList] = useState([]);
@@ -467,7 +468,7 @@ const Player = ({ navigation, route }) => {
     }
   }, []);
 
-  
+
 
   return (
     <View style={styles.main}>
@@ -483,6 +484,43 @@ const Player = ({ navigation, route }) => {
           <Text style={{marginRight: 5}}>{name}-{index},,, </Text>
         ))}
       </View>
+      // for horizontal list that includes all instrument for the same piece.
+      <View style={styles.partsContent}>
+        {temp.length < 1 ? (
+          <ActivityIndicator size={"large"} color={"black"} />
+        ) : (
+          <FlatList
+            //data={feed}
+            data = {temp}
+            keyExtractor={(item, index) => {
+              return item.partId.toString();
+            }}
+            renderItem={({ item, index }) => (
+              <View style={styles.partConent}>
+                <View style={styles.partNameOuter}>
+                  <View style={styles.imageView}>
+                    <TouchableOpacity
+                      style={styles.thumbnailButton}
+                      onPress={() =>
+                        navigation.navigate("Player", {data: item, pieceName: route.params.pieceName})
+                      }
+                    >
+                      <Image
+                        style={styles.partThumbnail}
+                        // BUG: 1.why require does not work for each item? 2.How to link with google drive(JSON)
+                        source={{ uri: item.partThumbnail }}
+                      />
+                    </TouchableOpacity>
+                    <Text style={styles.partName}>{item.partName}</Text>
+                  </View>
+                  <Icon style={styles.optionsIcon} name="options-vertical" />
+                </View>
+              </View>
+            )}
+          />
+        )}
+      </View>
+      // video player
       <View
         style={{
           height: screen.height / 4,
@@ -490,6 +528,7 @@ const Player = ({ navigation, route }) => {
           backgroundColor: "#a7a79d",
         }}
       >
+
         <Video
           ref={video}
           style={styles.video}
@@ -509,7 +548,7 @@ const Player = ({ navigation, route }) => {
           allowsFullscreenVideo
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction
-          source={{ uri: 'https://www.youtube.com/watch?v=RYNVZqpytHM' }} 
+          source={{ uri: 'https://www.youtube.com/watch?v=RYNVZqpytHM' }}
         /> */}
         {/* <YoutubePlayer
           style={styles.video}
@@ -593,6 +632,9 @@ const styles = StyleSheet.create({
     color: "#58555A",
     alignItems: "center",
   },
+  partsContent: {
+    width: "100%",
+  },
   video: {
     width: "100%",
     height: "100%",
@@ -608,6 +650,9 @@ const styles = StyleSheet.create({
     height: 55,
     width: 10,
     backgroundColor: "rgba(20,0,250,0.25)",
+  },
+  partsContent: {
+    width: "100%",
   },
   movebar: {
     transform: [{ translateX: position.x }, { translateY: position.y }],
