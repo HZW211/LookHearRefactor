@@ -10,6 +10,8 @@ import {
   Image,
   Button,
   ScrollView,
+  Modal,
+  Pressable,
 } from "react-native";
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import { firebase } from "../Firebase/firebase";
@@ -41,7 +43,8 @@ const Home = ({ navigation }) => {
   const [placeholderList,setPlaceholderList] = useState(["zirlerMotet","OrtoMotet","OtherMotet"])
   const [pieceNames, setpieceNames] = useState([])
   const [newPieceName, setNewPieceName] = useState([])
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [nameOfDeletePiece, setNameOfDeletPiece] = useState("");
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
   // Update has already linked to database, dummy data has already been stored in firebase, and the function works properly
@@ -142,6 +145,7 @@ const Home = ({ navigation }) => {
   const deletePiece = (pieceName) => {
     const db = firebase.firestore()
     db.collection("videos1").doc(pieceName).delete().then(() => {
+      setModalVisible(!modalVisible)
       console.log("Document successfully deleted!");
       window.location.reload(false);
     }).catch((error) => {
@@ -222,7 +226,49 @@ const Home = ({ navigation }) => {
                     <Text style={styles.partName}>{item}</Text>
                   </View>
                   <View style={{height: '50%', marginTop: 30}}>
-                    <TouchableOpacity style={styles.button} onPress={() => deletePiece(item)}><Text>delete this piece: {item}(DONT click it now!)</Text></TouchableOpacity>
+                    {/* <TouchableOpacity style={styles.button1} onPress={() => {setModalVisible(true);setNameOfDeletPiece(item)}}><Text>delete this piece: {item}</Text></TouchableOpacity> */}
+                    <View style={styles.centeredView}>
+                      <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                          Alert.alert("Modal has been closed.");
+                          setModalVisible(!modalVisible);
+                        }}
+                      >
+                        <View style={styles.centeredView}>
+                          <View style={styles.modalView}>
+                            <Text style={styles.modalText}>Are you sure to delete this piece: {nameOfDeletePiece}?</Text>
+                            <View style={{flexDirection: 'row'}}>
+                              <View style={{marginRight: 10}}>
+                                <Pressable
+                                  style={[styles.button, styles.buttonClose]}
+                                  onPress={() => deletePiece(nameOfDeletePiece)}
+                                >
+                                  <Text style={styles.textStyle}>Yes</Text>
+                                </Pressable>
+                              </View>
+                              <View style={{marginLeft: 10}}>
+                                <Pressable
+                                  style={[styles.button, styles.buttonClose]}
+                                  onPress={() => setModalVisible(!modalVisible)}
+                                >
+                                  <Text style={styles.textStyle}>No</Text>
+                                </Pressable>
+                              </View>
+                            </View>
+                            
+                          </View>
+                        </View>
+                      </Modal>
+                      <Pressable
+                        style={[styles.button, styles.buttonOpen]}
+                        onPress={() => {setModalVisible(true);setNameOfDeletPiece(item)}}
+                      >
+                        <Text style={styles.textStyle}>delete this piece: {item}</Text>
+                      </Pressable>
+                    </View>
                   </View>
                   
                   <Icon style={styles.optionsIcon} name="options-vertical" />
@@ -335,11 +381,54 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
   },
-  button: {
+  button1: {
     alignItems: "center",
     backgroundColor: "#DDDDDD",
-    padding: 10
+    padding: 10,
   },
+
+
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
+  }
 });
 
 export default Home;

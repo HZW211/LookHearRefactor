@@ -198,7 +198,7 @@ const Home = ({ navigation, route }) => {
                     <TouchableOpacity
                       style={styles.thumbnailButton}
                       onPress={() =>
-                        navigation.navigate("Player", { data: item })
+                        navigation.navigate("Player", {data: item, pieceName: route.params.pieceName})
                       }
                     >
                       <Image

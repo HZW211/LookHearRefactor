@@ -17,8 +17,12 @@ import {
   Animated,
   PanResponder,
   Alert,
+  FlatList,
+  ScrollView,
 } from "react-native";
 import { Video, AVPlaybackStatus } from "expo-av";
+import { firebase } from "../Firebase/firebase";
+import 'firebase/storage';
 
 const screen = Dimensions.get("screen");
 
@@ -43,6 +47,8 @@ const Player = ({ navigation, route }) => {
   // const { screenWidth, screenHeight } = Dimensions.get("screen");
 
   const [partData, setPartData] = useState(route.params.data);
+  const [pieceName, setPieceName] = useState(route.params.pieceName);
+  const [nameList, setNameList] = useState([]);
   const video = React.useRef(null);
   const [videoStatus, setVideoStatus] = React.useState({});
   const [isAnimated, setIsAnimated] = useState(false);
@@ -50,6 +56,20 @@ const Player = ({ navigation, route }) => {
   const posScale = 0.95;
 
   // From Zhiwei
+  useEffect(() => {
+    // TODO: make sure that all properties in fetched data can work fine with all the frontend tags
+    const db = firebase.firestore()
+    async function fetchInstrumentNames(db) {
+      await db.collection('videos1').doc(pieceName)
+            .collection(pieceName).get().then((snapshot) => {
+              snapshot.docs.forEach(doc => {
+                // const curInfo = doc.data()
+                nameList.push(doc.id);
+              })
+            })
+    }
+    fetchInstrumentNames(db)
+  }, []);
 
   // Animation Coords
   const Lag = [
@@ -447,8 +467,22 @@ const Player = ({ navigation, route }) => {
     }
   }, []);
 
+  
+
   return (
     <View style={styles.main}>
+      <View style={{flexDirection: 'row', overflow: 'auto'}}>
+        {nameList.map((name, index) => (
+          // <TouchableOpacity
+          //   style={{marginLeft: 5}}
+          //   onPress={() =>
+          //     navigation.navigate("Player", {data: item, pieceName: name})
+          //   }
+          // >
+          // </TouchableOpacity>
+          <Text style={{marginRight: 5}}>{name}-{index},,, </Text>
+        ))}
+      </View>
       <View
         style={{
           height: screen.height / 4,
