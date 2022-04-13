@@ -9,6 +9,8 @@ import {
   TextInput,
   Image,
   Button,
+  Modal,
+  Pressable,
 } from "react-native";
 import Icon from "react-native-vector-icons/SimpleLineIcons";
 import { firebase } from "../Firebase/firebase";
@@ -33,10 +35,11 @@ const Home = ({ navigation, route }) => {
   const [thumbnailDone, setThumbnailDone] = useState(false);
   const [videoDone, setVideoDone] = useState(false);
   const [sheetDone, setSheetDone] = useState(false);
-
-  const [beforeSearch, setBeforeSearch] = useState([])
-  const [afterSearch, setAfterSearch] = useState([])
   const [allData, setAllData] = useState([])
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [nameOfDeleteInstr, setNameOfDeletInstr] = useState("");
+  const [nameList, setNameList] = useState([]);
 
   // Set manual feeds
   // FIXME: feeds manually created (link with DB)
@@ -45,46 +48,24 @@ const Home = ({ navigation, route }) => {
     // TODO: make sure that all properties in fetched data can work fine with all the frontend tags
     const db = firebase.firestore()
     var curInfoList = []
-    // async function fetchVideo(db) {
-    //   await db.collection('videos1').get().then((snapshot) => {
-    //     snapshot.docs.forEach(doc => {
-    //       //need to retrieve every property of each doc, and make them as a whole object, so that we can make a list of object and set it as feed
-          
-    //       const curInfo = doc.data()
-    //       curInfoList.push(curInfo)
-    //     })
-    //   })
-    //   console.log(curInfoList)
-    //   console.log(route.params.pieceName)
-    //   setTemp(curInfoList)
-    //   setAllData(curInfoList)
-    // }
+    var instrNameList = []
     async function fetchVideo(db) {
       await db.collection('videos1').doc(route.params.pieceName)
               .collection(route.params.pieceName).get().then((snapshot) => {
                 snapshot.docs.forEach(doc => {
                   const curInfo = doc.data()
                   curInfoList.push(curInfo)
+                  instrNameList.push(doc.id)
                 })
               })
       console.log(curInfoList)
       console.log(route.params.pieceName)
       setTemp(curInfoList)
       setAllData(curInfoList)
+      setNameList(instrNameList)
     }
     fetchVideo(db)
   }, []);
-
-  // useEffect(() => {
-  //   setId(JSON.parse(window.sessionStorage.getItem("id")));
-  // }, []);
-
-  // useEffect(() => {
-  //   window.sessionStorage.setItem("count", id);
-  // }, [id]);
-
-  //add some comments
-  //this is a test for cs103a quiz3
 
   const selectThumbnailImage = async (e) => {
     console.log("selectThumbnailImage")
@@ -166,6 +147,17 @@ const Home = ({ navigation, route }) => {
     }
   }
 
+  const deleteInstrument = (instrName) => {
+    const db = firebase.firestore()
+    db.collection("videos1").doc(route.params.pieceName).collection(route.params.pieceName).doc(instrName).delete().then(() => {
+      setModalVisible(!modalVisible)
+      console.log("Document successfully deleted!");
+      window.location.reload(false);
+    }).catch((error) => {
+      console.error("Error removing document: ", error);
+    });
+  }
+
   return (
     <View style={styles.mainView}>
       {/* // FIXME: piece name hard code */}
@@ -209,6 +201,52 @@ const Home = ({ navigation, route }) => {
                     </TouchableOpacity>
                     <Text style={styles.partName}>{item.partName}</Text>
                   </View>
+                  <View style={{height: '50%', marginTop: 30}}>
+                    <View style={styles.centeredView}>
+                      <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => {
+                          Alert.alert("Modal has been closed.");
+                          setModalVisible(!modalVisible);
+                        }}
+                      >
+                        <View style={styles.centeredView}>
+                          <View style={styles.modalView}>
+                            <Text style={styles.modalText}>Are you sure to delete this instrument?</Text>
+                            <View style={{flexDirection: 'row'}}>
+                              <View style={{marginRight: 10}}>
+                                <Pressable
+                                  style={[styles.button, styles.buttonClose]}
+                                  onPress={() => deleteInstrument(nameOfDeleteInstr)}
+                                >
+                                  <Text style={styles.textStyle}>Yes</Text>
+                                </Pressable>
+                              </View>
+                              <View style={{marginLeft: 10}}>
+                                <Pressable
+                                  style={[styles.button, styles.buttonClose]}
+                                  onPress={() => setModalVisible(!modalVisible)}
+                                >
+                                  <Text style={styles.textStyle}>No</Text>
+                                </Pressable>
+                              </View>
+                            </View>
+                            
+                          </View>
+                        </View>
+                      </Modal>
+                      <Pressable
+                        style={[styles.button, styles.buttonOpen]}
+                        onPress={() => {setModalVisible(true); setNameOfDeletInstr(nameList[index])}}
+                      >
+                        <Text style={styles.textStyle}>delete this instrument: {nameList[index]}</Text>
+                      </Pressable>
+                    </View>
+                  </View>
+
+
                   <Icon style={styles.optionsIcon} name="options-vertical" />
                 </View>
               </View>
@@ -339,6 +377,47 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderRadius: 10,
     textAlign: 'center',
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center"
   }
 });
 
